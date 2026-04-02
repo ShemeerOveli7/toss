@@ -101,8 +101,9 @@ button {
 <button onclick="flipCoin()">Flip Coin</button>
 
 <div id="result">Tap to Toss</div>
-
 <script>
+// Keep track of which side is currently facing up (0 = Heads, 1 = Tails)
+let currentSide = 0; 
 let currentRotation = 0;
 
 function flipCoin() {
@@ -111,29 +112,30 @@ function flipCoin() {
 
     result.innerText = "Flipping...";
 
-    const isHeads = Math.random() < 0.5;
+    // 1. Determine the outcome (0 for Heads, 1 for Tails)
+    const nextSide = Math.random() < 0.5 ? 0 : 1;
 
-    // Normalize current rotation (avoid drift issues)
-    currentRotation = currentRotation % 360;
+    // 2. Figure out how many extra full spins to do (5 to 7 spins)
+    const extraSpins = Math.floor(Math.random() * 3) + 5; 
+    
+    // 3. Calculate the degrees needed to get to the next side
+    // If we are on Heads (0) and want Tails (1), we need 180 deg.
+    // If we are on Tails (1) and want Heads (0), we need -180 deg (or +180).
+    const sideDifference = nextSide - currentSide;
+    
+    // 4. Add the massive spins + the side difference to the total rotation
+    currentRotation += (extraSpins * 360) + (sideDifference * 180);
 
-    // Ensure clean base (0 or 180 only)
-    if (currentRotation !== 0 && currentRotation !== 180) {
-        currentRotation = (currentRotation % 360 >= 180) ? 180 : 0;
-    }
-
-    // Spins for animation
-    const spins = Math.floor(Math.random() * 3) + 5; // 5–7 spins
-
-    // Final angle MUST match result
-    const finalAngle = spins * 360 + (isHeads ? 0 : 180);
-
-    currentRotation = finalAngle;
-
+    // Apply the CSS transform
     coin.style.transform = `rotateY(${currentRotation}deg)`;
 
-   // setTimeout(() => {
-   //     result.innerText = isHeads ? "HEADS 🪙" : "TAILS 🪙";
-  //  }, 2200);
+    // Update our tracking variable for the next flip
+    currentSide = nextSide;
+
+    // 5. Uncommented and fixed your timeout to match the 2.2s CSS transition
+    setTimeout(() => {
+        result.innerText = (currentSide === 0) ? "HEADS 🪙" : "TAILS 🪙";
+    }, 2200);
 }
 
 // Tap anywhere except button
