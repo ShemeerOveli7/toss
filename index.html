@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scorpion Toss</title>
 
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
 <style>
 body {
     margin: 0;
@@ -16,6 +22,8 @@ body {
     align-items: center;
     font-family: Arial;
     color: white;
+    overflow: hidden;
+    touch-action: manipulation;
 }
 
 h2 {
@@ -45,10 +53,8 @@ h2 {
     height: 100%;
     border-radius: 50%;
     backface-visibility: hidden;
-
     background-size: cover;
     background-position: center;
-
     box-shadow:
         inset 0 0 12px rgba(0,0,0,0.7),
         0 10px 25px rgba(0,0,0,0.9);
@@ -101,40 +107,39 @@ button {
 <button onclick="flipCoin()">Flip Coin</button>
 
 <div id="result">Tap to Toss</div>
+
 <script>
-// Keep track of which side is currently facing up (0 = Heads, 1 = Tails)
-let currentSide = 0; 
+let currentSide = 0;
 let currentRotation = 0;
+let isFlipping = false;
 
 function flipCoin() {
+    if (isFlipping) return; // prevent spam clicks
+    isFlipping = true;
+
     const coin = document.getElementById("coin");
     const result = document.getElementById("result");
 
     result.innerText = "Flipping...";
 
-    // 1. Determine the outcome (0 for Heads, 1 for Tails)
     const nextSide = Math.random() < 0.5 ? 0 : 1;
+    const spins = Math.floor(Math.random() * 3) + 5;
 
-    // 2. Figure out how many extra full spins to do (5 to 7 spins)
-    const extraSpins = Math.floor(Math.random() * 3) + 5; 
-    
-    // 3. Calculate the degrees needed to get to the next side
-    // If we are on Heads (0) and want Tails (1), we need 180 deg.
-    // If we are on Tails (1) and want Heads (0), we need -180 deg (or +180).
-    const sideDifference = nextSide - currentSide;
-    
-    // 4. Add the massive spins + the side difference to the total rotation
-    currentRotation += (extraSpins * 360) + (sideDifference * 180);
+    const sideDiff = nextSide - currentSide;
 
-    // Apply the CSS transform
+    currentRotation += (spins * 360) + (sideDiff * 180);
+
     coin.style.transform = `rotateY(${currentRotation}deg)`;
 
-    // Update our tracking variable for the next flip
     currentSide = nextSide;
 
-    // 5. Uncommented and fixed your timeout to match the 2.2s CSS transition
     setTimeout(() => {
-        result.innerText = (currentSide === 0) ? "HEADS 🪙" : "TAILS 🪙";
+        result.innerText = currentSide === 0 ? "HEADS 🪙" : "TAILS 🪙";
+        isFlipping = false;
+
+        // vibration (mobile)
+        if (navigator.vibrate) navigator.vibrate(100);
+
     }, 2200);
 }
 
@@ -144,6 +149,12 @@ document.body.addEventListener("click", (e) => {
         flipCoin();
     }
 });
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+}
 </script>
+
 </body>
 </html>
