@@ -1,0 +1,21 @@
+{
+  "name": "Scorpion Toss",
+  "short_name": "Toss",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "heads_coin_webp.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "tails_coin_webp.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ]
+}
