@@ -103,7 +103,7 @@ button {
 <div id="result">Tap to Toss</div>
 
 <script>
-let currentRotation = 0; // keep track of total rotation
+let currentRotation = 0;
 
 function flipCoin() {
     const coin = document.getElementById("coin");
@@ -113,11 +113,21 @@ function flipCoin() {
 
     const isHeads = Math.random() < 0.5;
 
-    // Always force multiple spins
+    // Normalize current rotation (avoid drift issues)
+    currentRotation = currentRotation % 360;
+
+    // Ensure clean base (0 or 180 only)
+    if (currentRotation !== 0 && currentRotation !== 180) {
+        currentRotation = (currentRotation % 360 >= 180) ? 180 : 0;
+    }
+
+    // Spins for animation
     const spins = Math.floor(Math.random() * 3) + 5; // 5–7 spins
 
-    // Add rotation instead of resetting
-    currentRotation += spins * 360 + (isHeads ? 0 : 180);
+    // Final angle MUST match result
+    const finalAngle = spins * 360 + (isHeads ? 0 : 180);
+
+    currentRotation = finalAngle;
 
     coin.style.transform = `rotateY(${currentRotation}deg)`;
 
